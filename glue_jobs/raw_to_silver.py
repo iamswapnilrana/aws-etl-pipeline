@@ -9,7 +9,7 @@ output_path = "s3://swapnil-data-lake/silver/transactions/"
 
 # Read all new files in Silver input
 df = spark.read.option("header", True).csv(input_path)
-
+#
 # Basic cleaning
 df_clean = (
     df.dropna(subset=["amount"])  # remove null amounts

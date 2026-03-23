@@ -1,0 +1,21 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      python: 3.11
+    commands:
+      - echo "Installing Terraform..."
+      - curl -O https://releases.hashicorp.com/terraform/1.4.6/terraform_1.4.6_linux_amd64.zip
+      - unzip terraform_1.4.6_linux_amd64.zip -d /usr/local/bin/
+
+  build:
+    commands:
+      - echo "Starting Terraform..."
+      - cd terraform
+      - terraform init -input=false
+      - terraform apply -auto-approve -input=false
+
+artifacts:
+  files:
+    - '**/*'

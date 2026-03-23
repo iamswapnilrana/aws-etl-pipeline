@@ -4,9 +4,10 @@ import os
 redshift_data = boto3.client("redshift-data")
 
 DATABASE = "dev"
-DB_USER = "awsuser"
-CLUSTER_ID = "your-redshift-serverless-workgroup"
+DB_USER = "admin"
+CLUSTER_ID = "swapnil-redshift-wg"
 IAM_ROLE_ARN = "arn:aws:iam::493902789652:role/lambda_data_pipeline_role"
+
 
 def lambda_handler(event, context):
     s3_path = event["gold_path"]

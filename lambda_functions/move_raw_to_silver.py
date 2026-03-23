@@ -5,7 +5,7 @@ import urllib.parse
 s3 = boto3.client("s3")
 stepfunctions = boto3.client("stepfunctions")
 
-STATE_MACHINE_ARN = "arn:aws:states:us-east-1:YOUR_ACCOUNT:stateMachine:swapnil-data-pipeline"
+STATE_MACHINE_ARN = "arn:aws:states:us-east-1:493902789652:stateMachine:swapnil-data-pipeline"
 
 
 def lambda_handler(event, context):

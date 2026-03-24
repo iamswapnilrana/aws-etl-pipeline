@@ -2,25 +2,38 @@ import sys
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import sum as _sum, count, max as _max
 
-spark = SparkSession.builder.appName("silver_to_gold").getOrCreate()
+spark = SparkSession.builder.getOrCreate()
 
-silver_path = "s3://swapnil-data-lake/silver/transactions/"
+# Correct path for your actual Silver CSVs moved by Lambda
+silver_path = "s3://swapnil-data-lake/silver/input/transactions/*/*/*/"
+
 gold_path = "s3://swapnil-data-lake/gold/transactions_daily/"
 
-# Read Silver layer
-df = spark.read.parquet(silver_path)
+# Read cleaned CSVs
+df = (
+    spark.read
+        .option("header", True)
+        .option("inferSchema", True)
+        .csv(silver_path)
+)
 
-# Daily aggregation
+# Normalize column names (Glue sometimes adds spaces)
+df = df.toDF(*[c.strip().lower() for c in df.columns])
+
 df_gold = (
     df.groupBy("account_id")
       .agg(
-           _sum("amount").alias("total_amount"),
-           count("*").alias("total_transactions"),
-           _max("transaction_date").alias("last_transaction_date")
+          _sum("amount").alias("total_amount"),
+          count("*").alias("total_transactions"),
+          _max("transaction_date").alias("last_transaction_date")
       )
 )
 
-# Write to Gold
-df_gold.write.mode("overwrite").parquet(gold_path)
-
-print("SILVER → GOLD completed")
+# Write flat Parquet (required for Redshift COPY)
+(
+    df_gold
+    .select("account_id", "total_amount", "total_transactions", "last_transaction_date")
+    .write
+    .mode("overwrite")
+    .parquet(gold_path)
+)

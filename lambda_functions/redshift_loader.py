@@ -1,6 +1,6 @@
 import boto3
 
-redshift_data = boto3.client("redshift-data")
+redshift_data = boto3.client("redshift-data", region_name="us-east-1")
 
 DATABASE = "dev"
 WORKGROUP_NAME = "swapnil-redshift-wg"

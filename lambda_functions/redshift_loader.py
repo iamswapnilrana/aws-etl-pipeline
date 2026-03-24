@@ -1,17 +1,17 @@
 import boto3
-import os
 
 redshift_data = boto3.client("redshift-data")
 
 DATABASE = "dev"
-DB_USER = "admin"
-CLUSTER_ID = "swapnil-redshift-wg"
+WORKGROUP_NAME = "swapnil-redshift-wg"
 IAM_ROLE_ARN = "arn:aws:iam::493902789652:role/lambda_data_pipeline_role"
 
 
 def lambda_handler(event, context):
+    # The Step Function passes the gold path
     s3_path = event["gold_path"]
 
+    # Redshift COPY command for serverless
     sql = f"""
         COPY fact_transactions
         FROM '{s3_path}'
@@ -20,10 +20,10 @@ def lambda_handler(event, context):
     """
 
     response = redshift_data.execute_statement(
-        ClusterIdentifier=CLUSTER_ID,
+        WorkgroupName=WORKGROUP_NAME,
         Database=DATABASE,
-        DbUser=DB_USER,
-        Sql=sql
+        Sql=sql,
+        WithEvent=True
     )
 
     print("Redshift COPY started:", response)

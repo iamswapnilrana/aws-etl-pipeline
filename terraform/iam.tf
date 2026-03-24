@@ -21,6 +21,10 @@ resource "aws_iam_policy" "lambda_policy" {
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
+
+      ##########################
+      # S3 Access
+      ##########################
       {
         Effect = "Allow",
         Action = ["s3:*"],
@@ -29,11 +33,37 @@ resource "aws_iam_policy" "lambda_policy" {
           "arn:aws:s3:::swapnil-data-lake/*"
         ]
       },
+
+      ##########################
+      # Step Functions StartExecution
+      ##########################
       {
         Effect = "Allow",
         Action = ["states:StartExecution"],
         Resource = "*"
       },
+
+      ###########################################################
+      # >>> REDSHIFT PERMISSIONS (Required for COPY + SQL) <<<
+      ###########################################################
+      {
+        Effect = "Allow",
+        Action = [
+          "redshift-data:ExecuteStatement",
+          "redshift-data:GetStatementResult",
+          "redshift-serverless:GetCredentials",
+          "redshift-serverless:GetWorkgroup",
+          "redshift:GetClusterCredentials",
+          "s3:GetObject",
+          "s3:ListBucket"
+        ],
+        Resource = "*"
+      },
+      ###########################################################
+
+      ##########################
+      # CloudWatch Logs
+      ##########################
       {
         Effect = "Allow",
         Action = ["logs:*"],
@@ -118,7 +148,10 @@ resource "aws_iam_policy" "sfn_policy" {
     Statement = [
       {
         Effect = "Allow",
-        Action = ["lambda:InvokeFunction", "glue:*"],
+        Action = [
+          "lambda:InvokeFunction",
+          "glue:*"
+        ],
         Resource = "*"
       },
       {

@@ -27,9 +27,6 @@ def lambda_handler(event, context):
         Key=dest_key
     )
 
-    # # Delete original from RAW (optional)
-    # s3.delete_object(Bucket=bucket, Key=source_key)
-
     print(f"Moved {source_key} → {dest_key}")
 
     # Start Step Functions workflow

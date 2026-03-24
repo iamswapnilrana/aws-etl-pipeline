@@ -22,9 +22,13 @@ resource "aws_sfn_state_machine" "pipeline" {
       },
       "Next": "LoadToRedshift"
     },
+
     "LoadToRedshift": {
       "Type": "Task",
       "Resource": "${aws_lambda_function.redshift_loader.arn}",
+      "Parameters": {
+          "gold_path": "s3://swapnil-data-lake/gold/transactions_daily/"
+      },
       "End": true
     }
   }

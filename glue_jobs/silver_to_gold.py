@@ -12,9 +12,9 @@ gold_path = "s3://swapnil-data-lake/gold/transactions_daily/"
 # Read cleaned CSVs
 df = (
     spark.read
-        .option("header", True)
-        .option("inferSchema", True)
-        .csv(silver_path)
+    .option("header", True)
+    .option("inferSchema", True)
+    .csv(silver_path)
 )
 
 # Normalize column names (Glue sometimes adds spaces)
@@ -22,18 +22,20 @@ df = df.toDF(*[c.strip().lower() for c in df.columns])
 
 df_gold = (
     df.groupBy("account_id")
-      .agg(
-          _sum("amount").alias("total_amount"),
-          count("*").alias("total_transactions"),
-          _max("transaction_date").alias("last_transaction_date")
-      )
+    .agg(
+        _sum("amount").alias("total_amount"),
+        count("*").alias("total_transactions"),
+        _max("transaction_date").alias("last_transaction_date")
+    )
 )
 
 # Write flat Parquet (required for Redshift COPY)
 (
     df_gold
     .select("account_id", "total_amount", "total_transactions", "last_transaction_date")
+    .coalesce(1)         # write ONE file only
     .write
     .mode("overwrite")
-    .parquet(gold_path)
+    .option("compression", "snappy")
+    .parquet("s3://swapnil-data-lake/gold/transactions_daily/")
 )

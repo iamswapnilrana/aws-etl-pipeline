@@ -18,9 +18,9 @@ df = df.toDF(*[c.strip().lower() for c in df.columns])
 # Now amount exists as "amount"
 df_clean = (
     df.dropna(subset=["amount"])
-      .withColumn("amount", col("amount").cast("double"))
-      .withColumn("transaction_date", col("transaction_date").cast("date"))
-      .withColumn("ingestion_time", current_timestamp())
+    .withColumn("amount", col("amount").cast("double"))
+    .withColumn("transaction_date", col("transaction_date").cast("date"))
+    .withColumn("ingestion_time", current_timestamp())
 )
 
 df_clean.write.mode("append").partitionBy("transaction_date").parquet(output_path)

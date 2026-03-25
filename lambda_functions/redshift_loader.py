@@ -16,9 +16,9 @@ def lambda_handler(event, context):
         COPY fact_transactions
         FROM '{s3_path}'
         IAM_ROLE '{IAM_ROLE_ARN}'
-        FORMAT AS PARQUET;
+        FORMAT AS PARQUET
+        INCLUDE '.*\\.parquet';
     """
-
     response = redshift_data.execute_statement(
         WorkgroupName=WORKGROUP_NAME,
         Database=DATABASE,
